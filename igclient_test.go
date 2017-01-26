@@ -28,7 +28,7 @@ func TestClient(t *testing.T) {
 }
 
 func TestTag(t *testing.T) {
-	res, err := c.TagService.Recent("mitäserikkaillekuuluumitäköyhättekee")
+	res, err := c.TagService.Recent("testing")
 	if err != nil {
 		t.Error(err)
 		return
