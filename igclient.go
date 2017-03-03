@@ -18,16 +18,14 @@ const (
 	TAGS     = "/tags/"
 	QUERY    = "/query/"
 	ENDING   = "/?__a=1"
+	SEARCH   = "/web/search/topsearch/"
 )
 
 type Client struct {
-	username   string
-	password   string
-	TagService *TagService
-	client
-}
-
-type TagService struct {
+	username    string
+	password    string
+	TagService  *TagService
+	UserService *UserService
 	client
 }
 
@@ -42,10 +40,11 @@ func NewClient(username, password string) (*Client, error) {
 	}
 	conn := client{c}
 	client := &Client{
-		username:   username,
-		password:   password,
-		client:     conn,
-		TagService: &TagService{conn},
+		username:    username,
+		password:    password,
+		client:      conn,
+		TagService:  &TagService{conn},
+		UserService: &UserService{conn},
 	}
 
 	if err := client.login(); err != nil {

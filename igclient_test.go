@@ -1,8 +1,10 @@
 package ig
 
 import (
-	"fmt"
+	"image"
+	"image/jpeg"
 	"log"
+	"os"
 	"testing"
 )
 
@@ -10,9 +12,12 @@ import (
 const (
 	user     = ""
 	password = ""
+	tagName  = "nofilter"
 )
 
 var c *Client
+var n *Node
+var cursor string
 var err error
 
 func init() {
@@ -27,29 +32,44 @@ func TestClient(t *testing.T) {
 	}
 }
 
-func TestTag(t *testing.T) {
-	res, err := c.TagService.Recent("testing")
+func TestRecent(t *testing.T) {
+	res, err := c.TagService.Recent(tagName)
 	if err != nil {
 		t.Error(err)
 		return
 	}
+	n = &res.Data.Nodes[0]
+	cursor = res.Data.PageInfo.EndCursor
+}
 
-	var counter int
-	for i, m := range res.Data.Nodes {
-		fmt.Println(i, m.Caption[0:10])
+func TestAfter(t *testing.T) {
+	res, err := c.TagService.After(tagName, cursor, 500)
+	if err != nil {
+		t.Error(err)
 	}
-	for err == nil {
-		counter += len(res.Data.Nodes)
-		if res, err = res.NextPage(10); err != nil {
-			t.Error(err)
-			return
+	prev := res.Data.Nodes[0].Date
+	for _, n := range res.Data.Nodes {
+		if n.Date > prev {
+			panic("asd")
 		}
-		for i, m := range res.Data.Nodes {
-			min := len(m.Caption)
-			if min > 10 {
-				min = 10
-			}
-			fmt.Println(i+counter, m.Caption[0:min])
-		}
+		prev = n.Date
 	}
+}
+
+func TestTop(t *testing.T) {
+	_, err := c.TagService.Top(tagName)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestNode(t *testing.T) {
+	var img image.Image
+	if img, err = n.GetImage(); err != nil {
+		t.Error(err)
+	}
+
+	f, _ := os.Create("image.jpg")
+	defer f.Close()
+	jpeg.Encode(f, img, nil)
 }

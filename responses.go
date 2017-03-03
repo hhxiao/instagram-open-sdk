@@ -20,20 +20,6 @@ type PageInfo struct {
 	HasPreviousPage bool   `json:"has_previous_page"`
 }
 
-type Node struct {
-	Caption      string       `json:"caption"`
-	Code         string       `json:"code"`
-	Comments     CountWrapper `json:"comments"`
-	Date         int          `json:"date"`
-	Dimensions   Dimensions   `json:"dimensions"`
-	DisplaySrc   string       `json:"display_src"`
-	ID           string       `json:"id"`
-	IsVideo      bool         `json:"is_video"`
-	Likes        CountWrapper `json:"likes"`
-	Owner        IdWrapper    `json:"owner"`
-	ThumbnailSrc string       `json:"thumbnail_src"`
-}
-
 type TopPosts struct {
 	Nodes []Node `json:"nodes"`
 }
@@ -45,27 +31,14 @@ type Media struct {
 	Status   string   `json:"status"`
 }
 
-type TagRecent struct {
-	Name            string      `json:"name"`
-	ContentAdvisory interface{} `json:"content_advisory"`
-	Media           Media       `json:"media"`
-}
-
-type TagTop struct {
-	Name            string      `json:"name"`
-	TopPosts        TopPosts    `json:"top_posts"`
-	ContentAdvisory interface{} `json:"content_advisory"`
-}
-
-type TagRecentResponse struct {
+type TagResponse struct {
 	Name string `json:"name"`
 	Data Media  `json:"media"`
-	client
 }
 
-type TagTopResponse struct {
+type TopResponse struct {
+	Name string   `json:"name"`
 	Data TopPosts `json:"top_posts"`
-	client
 }
 
 type LoginResponse struct {
