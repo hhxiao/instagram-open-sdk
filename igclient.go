@@ -16,6 +16,7 @@ const (
 	LOGIN    = "/accounts/login/ajax/"
 	EXPLORE  = "/explore"
 	TAGS     = "/tags/"
+	POSTS     = "/p/"
 	QUERY    = "/query/"
 	ENDING   = "/?__a=1"
 	SEARCH   = "/web/search/topsearch/"
@@ -26,6 +27,7 @@ type Client struct {
 	password    string
 	TagService  *TagService
 	UserService *UserService
+	PostService *PostService
 	client
 }
 
@@ -45,6 +47,7 @@ func NewClient(username, password string) (*Client, error) {
 		client:      conn,
 		TagService:  &TagService{conn},
 		UserService: &UserService{conn},
+		PostService: &PostService{conn},
 	}
 
 	if err := client.login(); err != nil {
@@ -68,14 +71,13 @@ func (c *Client) login() (err error) {
 	if r, err = c.client.post(BASE_URL+LOGIN, form); err != nil {
 		return
 	}
-
 	res := &LoginResponse{}
 	if err = json.NewDecoder(r.Body).Decode(res); err != nil {
 		return
 	}
 
 	if res.Status != "ok" || !res.Authenticated {
-		err = fmt.Errorf("Login failed")
+		err = fmt.Errorf("login failed")
 	}
 	return
 }
@@ -96,7 +98,7 @@ func (c *client) post(u string, form url.Values) (r *http.Response, err error) {
 	}
 
 	if token == "" {
-		err = fmt.Errorf("Could not get csrf token")
+		err = fmt.Errorf("could not get csrf token")
 		return
 	}
 

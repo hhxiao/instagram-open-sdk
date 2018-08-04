@@ -4,7 +4,7 @@ Go SDK for Instagram that uses same REST/GraphQL that web client does instead of
 
 ## Why
 
-Because I found Instagrams app preview process painful and needles.
+Because I found Instagrams app preview process painful and needless.
 
 ## How
 

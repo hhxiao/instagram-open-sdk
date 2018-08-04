@@ -29,8 +29,8 @@ const (
       count
     },
     owner {
-      id
-    },
+	  id
+	},
     thumbnail_src,
     video_views
   },
@@ -42,9 +42,9 @@ type TagService struct {
 	client
 }
 
-func (t *TagService) Top(tagName string) (res *TopResponse, err error) {
+func (t *TagService) Top(tagName string) (res *TagResponse, err error) {
 	if tagName == "" {
-		err = fmt.Errorf("Empty tag")
+		err = fmt.Errorf("empty tag")
 		return
 	}
 
@@ -54,17 +54,31 @@ func (t *TagService) Top(tagName string) (res *TopResponse, err error) {
 	}
 
 	data := struct {
-		TopResponse `json:"tag"`
+		GraphQL struct {
+			TagResponse TagResponse `json:"hashtag"`
+		} `json:"graphql"`
 	}{}
 
 	if err = json.NewDecoder(r.Body).Decode(&data); err != nil {
 		res = nil
 	}
 
-	res = &data.TopResponse
+	res = &data.GraphQL.TagResponse
+	res.Name = tagName
 
-	for i, _ := range res.Data.Nodes {
-		res.Data.Nodes[i].client = t.client
+	for i := range res.TopPosts.Nodes {
+		node := &res.TopPosts.Nodes[i].Node
+		node.client = t.client
+		if len(node.EdgeMediaToCaption.Edges) != 0 {
+			node.Caption = node.EdgeMediaToCaption.Edges[0].Node.Text
+		}
+	}
+	for i := range res.Medias.Nodes {
+		node := &res.Medias.Nodes[i].Node
+		node.client = t.client
+		if len(node.EdgeMediaToCaption.Edges) != 0 {
+			node.Caption = node.EdgeMediaToCaption.Edges[0].Node.Text
+		}
 	}
 
 	return
@@ -72,7 +86,7 @@ func (t *TagService) Top(tagName string) (res *TopResponse, err error) {
 
 func (t *TagService) Recent(tagName string) (res *TagResponse, err error) {
 	if tagName == "" {
-		err = fmt.Errorf("Empty tag")
+		err = fmt.Errorf("empty tag")
 		return
 	}
 
@@ -82,17 +96,23 @@ func (t *TagService) Recent(tagName string) (res *TagResponse, err error) {
 	}
 
 	data := struct {
-		TagResponse `json:"tag"`
+		GraphQL struct {
+			TagResponse TagResponse `json:"hashtag"`
+		} `json:"graphql"`
 	}{}
 
 	if err = json.NewDecoder(r.Body).Decode(&data); err != nil {
 		res = nil
 	}
 
-	res = &data.TagResponse
+	res = &data.GraphQL.TagResponse
+	res.Name = tagName
 
-	for i, _ := range res.Data.Nodes {
-		res.Data.Nodes[i].client = t.client
+	for i := range res.TopPosts.Nodes {
+		res.TopPosts.Nodes[i].Node.client = t.client
+	}
+	for i := range res.Medias.Nodes {
+		res.Medias.Nodes[i].Node.client = t.client
 	}
 
 	return
@@ -107,15 +127,25 @@ func (t *TagService) After(tagName, cursor string, amount uint) (res *TagRespons
 		return
 	}
 
-	res = &TagResponse{}
-	if err = json.NewDecoder(r.Body).Decode(res); err != nil {
+	data := struct {
+		GraphQL struct {
+			TagResponse TagResponse `json:"hashtag"`
+		} `json:"graphql"`
+	}{}
+
+	if err = json.NewDecoder(r.Body).Decode(&data); err != nil {
 		res = nil
 	}
 
+	res = &data.GraphQL.TagResponse
 	res.Name = tagName
 
-	for i, _ := range res.Data.Nodes {
-		res.Data.Nodes[i].client = t.client
+	for i := range res.TopPosts.Nodes {
+		res.TopPosts.Nodes[i].Node.client = t.client
 	}
+	for i := range res.Medias.Nodes {
+		res.Medias.Nodes[i].Node.client = t.client
+	}
+
 	return
 }
