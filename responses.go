@@ -40,7 +40,7 @@ type PostResponse struct {
 	IsVideo              bool       `json:"is_video"`
 	TrackingToken        string     `json:"tracking_token"`
 	TakenAtTimestamp     int        `json:"taken_at_timestamp"`
-	CaptionIsEdited      int        `json:"caption_is_edited"`
+	CaptionIsEdited      bool       `json:"caption_is_edited"`
 	Dimensions           Dimensions `json:"dimensions"`
 	User                 User       `json:"owner"`
 	DisplayResources     []struct {
@@ -67,6 +67,30 @@ type PostResponse struct {
 			} `json:"node"`
 		} `json:"edges"`
 	} `json:"edge_media_to_caption"`
+	EdgeMediaPreviewLike struct {
+		Count int `json:"count"`
+		Edges []struct {
+			Node struct {
+				ID            string `json:"id"`
+				ProfilePicURL string `json:"profile_pic_url"`
+				Username      string `json:"username"`
+			} `json:"node"`
+		} `json:"edges"`
+	} `json:"edge_media_preview_like"`
+	EdgeMediaToComment struct {
+		Count    int      `json:"count"`
+		PageInfo PageInfo `json:"page_info"`
+		Edges    []struct {
+			Node struct {
+				ID             string       `json:"id"`
+				Text           string       `json:"text"`
+				CreatedAt      int          `json:"created_at"`
+				ViewerHasLiked bool         `json:"viewer_has_liked"`
+				EdgeLikedBy    CountWrapper `json:"edge_liked_by"`
+				User           User         `json:"owner"`
+			} `json:"node"`
+		} `json:"edges"`
+	} `json:"edge_media_to_comment"`
 }
 
 type TagResponse struct {
